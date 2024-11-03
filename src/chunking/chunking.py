@@ -18,8 +18,29 @@ from google.colab.patches import cv2_imshow
 import pandas as pd
 import Entropy as E
 
+class Chunking():
+    def get_avg_frame_per_time(self):
+        try: 
+            avg_frame_per_chunk = sum([len(self.chunks[i]) for i in range(len(self.chunks))]) / len(self.chunks)
+            return avg_frame_per_chunk
+        except Exception as e:
+            print(f'An error while running avg_frame_per_time: {e}')
 
-class clip_chunking():
+    def get_mean_entropy(self):
+        mean_entropy = E.chunks_mean_entropy(self.chunks)
+        return mean_entropy
+    
+    def add_to_table(self, table, approch):
+        dict_temp = {}
+        dict_temp['Approach'] = approch
+        dict_temp['Execution Time'] = self.exe_time
+        dict_temp['Avg Frame/Chunk'] = self.get_avg_frame_per_time()
+        dict_temp['Mean Entropy'] = self.get_mean_entropy()
+        dict_temp['Num Chunks'] = len(self.chunks)
+        table.append(dict_temp.copy())
+        return table
+
+class ClipChunking(Chunking):
     def __init__(self):
         self.model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
         self.processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
@@ -81,24 +102,6 @@ class clip_chunking():
         end_time = time()
         self.exe_time = end_time - start_time
         return self.chunks, slide_change_timestamps, self.exe_time
-    
-    def get_avg_frame_per_time(self):
-        try: 
-            clip_avg_frame_per_chunk = sum([len(self.chunks[i]) for i in range(len(self.chunks))]) / len(self.chunks)
-            return clip_avg_frame_per_chunk
-        except Exception as e:
-            print(f'An error while running get_avg_frame_per_time: {e}')
-
-    def get_mean_entropy(self):
-        clip_mean_entropy = E.chunks_mean_entropy(self.chunks)
-        return clip_mean_entropy
-    
-    def add_to_table(self, table):
-        dict_temp = {}
-        dict_temp['Approach'] = 'openai/clip-vit-base-patch32 Embbeding Base'
-        dict_temp['Execution Time'] = self.exe_time
-        dict_temp['Avg Frame/Chunk'] = self.get_avg_frame_per_time()
-        dict_temp['Mean Entropy'] = self.get_mean_entropy()
-        dict_temp['Num Chunks'] = len(self.clip_chunks)
-        table.append(dict_temp.copy())
-        return table
+    def evaluate(self):
+        self.avg_frame_per_chunk = super().get_avg_frame_per_time()
+        self.mean_entropy = super().get_mean_entropy()
