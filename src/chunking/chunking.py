@@ -173,63 +173,63 @@ class SaliencyChunking(Chunking):
         self.exe_time = end_time - start_time
         return self.chunks, slide_change_timestamps, self.exe_time
     
-    class SSIMChunking(Chunking):
-        def __init__(self):
-            self.chunks = None
-            self.exe_time = None
+class SSIMChunking(Chunking):
+    def __init__(self):
+        self.chunks = None
+        self.exe_time = None
 
-        def detect_slide_changes_ssim(video_path, threshold=0.8, interval=1):
-            cap = cv2.VideoCapture(video_path)
-            frame_lst = []
-            ssim_chunks = []
-            # Attempt to read the first frame
-            success, prev_frame = cap.read()
-            if not success:
-                print("Error: Failed to read the first frame.")
-                return []
-        
-            # Convert the first frame to grayscale
-            prev_frame = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
-            timestamp = 0
-        
-            # Store timestamps of slide changes
-            timestamps = []
-        
-            while cap.isOpened():
-                # Set the capture to the next frame based on interval
-                cap.set(cv2.CAP_PROP_POS_MSEC, timestamp * 1000)
-                ret, frame = cap.read()
-                if not ret:
-                    break
+    def detect_slide_changes_ssim(video_path, threshold=0.8, interval=1):
+        cap = cv2.VideoCapture(video_path)
+        frame_lst = []
+        ssim_chunks = []
+        # Attempt to read the first frame
+        success, prev_frame = cap.read()
+        if not success:
+            print("Error: Failed to read the first frame.")
+            return []
+
+        # Convert the first frame to grayscale
+        prev_frame = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
+        timestamp = 0
+
+        # Store timestamps of slide changes
+        timestamps = []
+
+        while cap.isOpened():
+            # Set the capture to the next frame based on interval
+            cap.set(cv2.CAP_PROP_POS_MSEC, timestamp * 1000)
+            ret, frame = cap.read()
+            if not ret:
+                break
                 
-                # Convert current frame to grayscale
-                gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        
-                # Calculate SSIM between previous and current frame
-                similarity = ssim(prev_frame, gray_frame)
-        
-                # If similarity is below the threshold, it's a slide change
-                if similarity < threshold:
-                    # Store the timestamp
-                    minutes = int(timestamp // 60)
-                    seconds = int(timestamp % 60)
-                    print(f"Slide changed at {minutes:02}:{seconds:02} minutes")  # Print slide change time
-                    timestamps.append(timestamp)
-                    ssim_chunks.append(frame_lst)
-                    frame_lst = []
-        
-                # Update the previous frame
-                prev_frame = gray_frame
-                frame_lst.append(frame)
-                timestamp += interval
-        
-            cap.release()
-            return ssim_chunks, timestamps
+            # Convert current frame to grayscale
+            gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+            # Calculate SSIM between previous and current frame
+            similarity = ssim(prev_frame, gray_frame)
+
+            # If similarity is below the threshold, it's a slide change
+            if similarity < threshold:
+                # Store the timestamp
+                minutes = int(timestamp // 60)
+                seconds = int(timestamp % 60)
+                print(f"Slide changed at {minutes:02}:{seconds:02} minutes")  # Print slide change time
+                timestamps.append(timestamp)
+                ssim_chunks.append(frame_lst)
+                frame_lst = []
+
+            # Update the previous frame
+            prev_frame = gray_frame
+            frame_lst.append(frame)
+            timestamp += interval
+
+        cap.release()
+        return ssim_chunks, timestamps
 
 
-        def chunk(self, video_path):
-            start_time = time()
-            self.chunks, slide_change_timestamps = self.detect_slide_changes(video_path, interval=1)
-            end_time = time()
-            self.exe_time = end_time - start_time
-            return self.chunks, slide_change_timestamps, self.exe_time
+    def chunk(self, video_path):
+        start_time = time()
+        self.chunks, slide_change_timestamps = self.detect_slide_changes(video_path, interval=1)
+        end_time = time()
+        self.exe_time = end_time - start_time
+        return self.chunks, slide_change_timestamps, self.exe_time
