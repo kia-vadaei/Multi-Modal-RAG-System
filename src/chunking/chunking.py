@@ -109,8 +109,6 @@ class ClipChunking(Chunking):
 
 class SaliencyChunking(Chunking):
     def __init__(self):
-        self.model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
-        self.processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
         self.chunks = None
         self.exe_time = None
 
@@ -167,11 +165,10 @@ class SaliencyChunking(Chunking):
         cap.release()
         return Saliency_chunks, timestamps
 
-
     
     def chunk(self, video_path):
         start_time = time()
-        self.chunks, slide_change_timestamps = self.detect_slide_changes(video_path, threshold=0.8, interval=1)
+        self.chunks, slide_change_timestamps = self.detect_slide_changes(video_path, interval=1)
         end_time = time()
         self.exe_time = end_time - start_time
         return self.chunks, slide_change_timestamps, self.exe_time
