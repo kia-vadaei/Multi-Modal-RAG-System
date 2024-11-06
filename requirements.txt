@@ -1,0 +1,13 @@
+pytubefix
+opencv-python
+torch
+numpy
+transformers
+scipy
+scikit-image
+ffmpeg-python
+moviepy
+scenedetect
+pandas
+google-colab
+Entropy
