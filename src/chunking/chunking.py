@@ -178,11 +178,11 @@ class SSIMChunking(Chunking):
         self.chunks = None
         self.exe_time = None
 
-    def detect_slide_changes(video_path, threshold=0.8, interval=1):
+    def detect_slide_changes(self, video_path, threshold=0.8, interval=1):
         cap = cv2.VideoCapture(video_path)
         frame_lst = []
         ssim_chunks = []
-        # Attempt to read the first frame
+
         success, prev_frame = cap.read()
         if not success:
             print("Error: Failed to read the first frame.")
