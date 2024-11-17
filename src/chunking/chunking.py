@@ -81,7 +81,7 @@ class ClipChunking(Chunking):
             if similarity < threshold:
                 minutes = int(timestamp // 60)
                 seconds = int(timestamp % 60)
-                print(f"Slide changed at {minutes:02}:{seconds:02} minutes")  # Print slide change time
+                # print(f"Slide changed at {minutes:02}:{seconds:02} minutes")  # Print slide change time
                 timestamps.append(timestamp)
 
                 clip_chunks.append(frame_lst)
@@ -151,7 +151,7 @@ class SaliencyChunking(Chunking):
             if abs(mean_residual - np.mean(prev_spectral_residual)) > threshold:
                 minutes = int(timestamp // 60)
                 seconds = int(timestamp % 60)
-                print(f"Slide changed at {minutes:02}:{seconds:02} minutes")  # Print slide change time
+                # print(f"Slide changed at {minutes:02}:{seconds:02} minutes")  # Print slide change time
                 timestamps.append(timestamp)
                 Saliency_chunks.append(frame_lst)
                 frame_lst = []
@@ -213,7 +213,7 @@ class SSIMChunking(Chunking):
                 # Store the timestamp
                 minutes = int(timestamp // 60)
                 seconds = int(timestamp % 60)
-                print(f"Slide changed at {minutes:02}:{seconds:02} minutes")  # Print slide change time
+                # print(f"Slide changed at {minutes:02}:{seconds:02} minutes")  # Print slide change time
                 timestamps.append(timestamp)
                 ssim_chunks.append(frame_lst)
                 frame_lst = []
