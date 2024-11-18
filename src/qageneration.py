@@ -243,7 +243,7 @@ class QAGeneration():
         for video_detail in tqdm(video_details):
 
             video_name = os.path.basename(video_detail['path']).split('.')[0]
-            chunks_path =  os.path.join(self.chunks_root_path, video_name)
+            chunks_path =  os.path.join(self.chunks_root_path, f"'{video_name}'")
 
             frames = self.get_chunk_frames(chunks_path)
             transcript = video_detail['transcript']
