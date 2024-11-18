@@ -213,13 +213,16 @@ class QAGeneration():
 
             video_id = self.extract_video_id(video_url)
             transcript = self.get_transcript(video_id)
-
+            path = self.download_video(video_url)[0] 
             video_detail_dict = {}
+            video_name = os.path.basename(path).split('.')[0]
+
 
             video_detail_dict['id'] = video_id
             video_detail_dict['url'] = video_url
-            video_detail_dict['path'] = self.download_video(video_url)[0] 
+            video_detail_dict['path'] = path
             video_detail_dict['transcript'] =  transcript
+            video_detail_dict['video_name'] =  video_name
 
             video_details.append(video_detail_dict)
 
@@ -241,7 +244,6 @@ class QAGeneration():
 
         for video_detail in tqdm(video_details,):
 
-            video_name = os.path.basename(video_detail['path']).split('.')[0]
             chunks_path =  os.path.join(self.chunks_root_path, video_name.translate(str.maketrans('\\/:*?"<>|', '_' * 9)))
             chunks_path =  os.path.join(chunks_path, 'hybrid_clip_ssim_frame_dir')
 
