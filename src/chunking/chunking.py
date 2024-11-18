@@ -233,3 +233,81 @@ class SSIMChunking(Chunking):
         end_time = time()
         self.exe_time = end_time - start_time
         return self.chunks, slide_change_timestamps, self.exe_time
+
+class HybridClipSSIMChunking(Chunking):
+    def __init__(self):
+        self.model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
+        self.processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+        self.chunks = None
+        self.exe_time = None
+
+    def get_frame_embedding(self, frame):
+        inputs = self.processor(images=frame, return_tensors="pt")
+        with torch.no_grad():
+            embedding = self.model.get_image_features(**inputs)
+        return embedding.squeeze()
+
+    def detect_slide_changes(self, video_path, threshold_embedding=0.8, threshold_ssim=0.8, interval=1, alpha=0.5):
+        cap = cv2.VideoCapture(video_path)
+        success, frame = cap.read()
+
+        frame_lst = []
+        hybrid_chunks = []
+
+        if not success:
+            print("Error: Failed to read the first frame.")
+            return []
+
+        prev_embedding = self.get_frame_embedding(frame)
+        prev_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        timestamp = 0
+        timestamps = []
+
+        while cap.isOpened():
+            cap.set(cv2.CAP_PROP_POS_MSEC, timestamp * 1000)
+            ret, frame = cap.read()
+            if not ret:
+                break
+
+            # Compute embedding and SSIM
+            curr_embedding = self.get_frame_embedding(frame)
+            curr_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+            # Calculate cosine similarity between embeddings
+            embedding_similarity = 1 - cosine(prev_embedding, curr_embedding)
+
+            # Calculate SSIM between frames
+            frame_similarity = ssim(prev_frame, curr_frame)
+
+            # Combine both similarity measures (weighted average approach)
+            combined_similarity = alpha * embedding_similarity + (1 - alpha) * frame_similarity
+
+            # Check if combined similarity is below threshold (indicating slide change)
+            if combined_similarity < threshold_embedding:
+                minutes = int(timestamp // 60)
+                seconds = int(timestamp % 60)
+                timestamps.append(timestamp)
+
+                hybrid_chunks.append(frame_lst)
+                frame_lst = []
+
+            # Update embeddings and frames
+            prev_embedding = curr_embedding
+            prev_frame = curr_frame
+            frame_lst.append(frame)
+
+            timestamp += interval
+
+        cap.release()
+        return hybrid_chunks, timestamps
+
+    def chunk(self, video_path):
+        start_time = time()
+        self.chunks, slide_change_timestamps = self.detect_slide_changes(video_path, threshold_embedding=0.8, threshold_ssim=0.8, interval=1)
+        end_time = time()
+        self.exe_time = end_time - start_time
+        return self.chunks, slide_change_timestamps, self.exe_time
+
+    def evaluate(self):
+        self.avg_frame_per_chunk = super().get_avg_frame_per_time()
+        self.mean_entropy = super().get_mean_entropy()
