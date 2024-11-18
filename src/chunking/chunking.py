@@ -264,7 +264,7 @@ class HybridClipSSIMChunking(Chunking):
         timestamp = 0
         timestamps = []
 
-        while tqdm(cap.isOpened()):
+        while cap.isOpened():
             cap.set(cv2.CAP_PROP_POS_MSEC, timestamp * 1000)
             ret, frame = cap.read()
             if not ret:
@@ -288,6 +288,7 @@ class HybridClipSSIMChunking(Chunking):
                 minutes = int(timestamp // 60)
                 seconds = int(timestamp % 60)
                 timestamps.append(timestamp)
+                print(f"Slide changed at {minutes:02}:{seconds:02} minutes")  # Print slide change time
 
                 hybrid_chunks.append(frame_lst)
                 frame_lst = []
