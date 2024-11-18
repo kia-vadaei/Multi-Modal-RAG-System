@@ -163,7 +163,7 @@ class QAGeneration():
         return combined_results
     
 
-    def save_as_json(self, result, link, file_path = "Q&A.json"):
+    def save_as_json(self, idx, video_id, video_name, result, video_url, file_path = "Q&A.json"):
 
         if os.path.exists(file_path):
             with open(file_path, "r", encoding="utf-8") as fp:
@@ -171,7 +171,12 @@ class QAGeneration():
         else:
            metadata = [] 
 
-        dict_template = {'video' : link,}
+        dict_template = {'video_id' : video_id,}
+        dict_template = {'video_url' : video_url,}
+        dict_template = {'video_name' : video_name,}
+
+
+
         sub_dict_template = {}
         QAs = result.split('\n\n')
         for i, QA in enumerate (QAs):
@@ -213,13 +218,16 @@ class QAGeneration():
 
             video_id = self.extract_video_id(video_url)
             transcript = self.get_transcript(video_id)
-
+            path = self.download_video(video_url)[0] 
             video_detail_dict = {}
+            video_name = os.path.basename(path).split('.')[0]
+
 
             video_detail_dict['id'] = video_id
             video_detail_dict['url'] = video_url
-            video_detail_dict['path'] = self.download_video(video_url)[0] 
+            video_detail_dict['path'] = path
             video_detail_dict['transcript'] =  transcript
+            video_detail_dict['video_name'] =  video_name
 
             video_details.append(video_detail_dict)
 
@@ -239,10 +247,9 @@ class QAGeneration():
         
         video_details = self.get_video_details()
 
-        for video_detail in tqdm(video_details,):
+        for i, video_detail in enumerate(tqdm(video_details,)):
 
-            video_name = os.path.basename(video_detail['path']).split('.')[0]
-            chunks_path =  os.path.join(self.chunks_root_path, video_name.translate(str.maketrans('\\/:*?"<>|', '_' * 9)))
+            chunks_path =  os.path.join(self.chunks_root_path, video_details['video_name'].translate(str.maketrans('\\/:*?"<>|', '_' * 9)))
             chunks_path =  os.path.join(chunks_path, 'hybrid_clip_ssim_frame_dir')
 
             frames = self.get_chunk_frames(chunks_path)
@@ -251,4 +258,4 @@ class QAGeneration():
             video_desc = self.get_combined_results(frames, transcript)
 
             QAs = self.generate_QAs(video_desc)
-            self.save_as_json(QAs, video_detail['url'])
+            self.save_as_json(i+1, video_details['id'],video_details['video_name'] , QAs, video_detail['url'])
