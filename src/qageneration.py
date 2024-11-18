@@ -243,7 +243,7 @@ class QAGeneration():
 
             video_name = os.path.basename(video_detail['path']).split('.')[0]
             chunks_path =  os.path.join(self.chunks_root_path, video_name)
-            chunks_path =  os.path.join(self.chunks_path, 'hybrid_clip_ssim_frame_dir')
+            chunks_path =  os.path.join(chunks_path, 'hybrid_clip_ssim_frame_dir')
 
             frames = self.get_chunk_frames(chunks_path)
             transcript = video_detail['transcript']
