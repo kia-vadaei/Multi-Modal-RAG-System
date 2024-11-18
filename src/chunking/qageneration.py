@@ -14,7 +14,7 @@ import base64
 import requests
 from tqdm import tqdm
 class QAGeneration():
-    def __init__(self, video_urls = None , chunks_root_path = './chunks/chunks'):
+    def __init__(self, video_urls = None , chunks_root_path = './chunks/hybrid_clip_ssim_chunking'):
 
         base_url = "https://api.avalai.ir/v1"
         api_key = "aa-pVNCqkgpuqSpvC8EdFmr8tzJy9HhzEkz5OGfT8YWxw9pB7kK"

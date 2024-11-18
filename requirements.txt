@@ -11,3 +11,9 @@ scenedetect
 pandas
 google-colab
 Entropy
+pytesseract
+youtube-transcript-api
+ipython
+langchain-openai
+tqdm
+requests
