@@ -17,6 +17,7 @@ from scipy.stats import entropy
 from google.colab.patches import cv2_imshow
 import pandas as pd
 import Entropy as E
+from tqdm import tqdm
 
 class Chunking():
     def get_avg_frame_per_time(self):
@@ -263,7 +264,7 @@ class HybridClipSSIMChunking(Chunking):
         timestamp = 0
         timestamps = []
 
-        while cap.isOpened():
+        while tqdm(cap.isOpened()):
             cap.set(cv2.CAP_PROP_POS_MSEC, timestamp * 1000)
             ret, frame = cap.read()
             if not ret:
