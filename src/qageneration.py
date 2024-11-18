@@ -242,7 +242,7 @@ class QAGeneration():
         for video_detail in tqdm(video_details,):
 
             video_name = os.path.basename(video_detail['path']).split('.')[0]
-            chunks_path =  os.path.join(self.chunks_root_path, video_name.replace(':', "_"))
+            chunks_path =  os.path.join(self.chunks_root_path, video_name.translate(str.maketrans('\\/:*?"<>|', '_' * 9)))
             chunks_path =  os.path.join(chunks_path, 'hybrid_clip_ssim_frame_dir')
 
             frames = self.get_chunk_frames(chunks_path)
