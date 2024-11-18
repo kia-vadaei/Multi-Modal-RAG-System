@@ -235,7 +235,7 @@ class QAGeneration():
                     frames.append(image)
         return frames
     
-    def process_videos(self, ):
+    def process_videos(self):
         
         video_details = self.get_video_details()
 
@@ -249,5 +249,5 @@ class QAGeneration():
 
             video_desc = self.get_combined_results(frames, transcript)
 
-            QAs = self.generate_QAs(video_desc, video_detail['url'])
-            self.save_as_json(QAs, )
+            QAs = self.generate_QAs(video_desc)
+            self.save_as_json(QAs, video_detail['url'])
