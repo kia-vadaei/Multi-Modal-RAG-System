@@ -209,7 +209,7 @@ class QAGeneration():
 
         video_details = []
        
-        for video_url in self.video_urls:
+        for video_url in tqdm(self.video_urls, desc='Preparing videos details'):
 
             video_id = self.extract_video_id(video_url)
             transcript = self.get_transcript(video_id)
@@ -237,10 +237,9 @@ class QAGeneration():
     
     def process_videos(self):
         
-        print('Downloading Videos...')
         video_details = self.get_video_details()
 
-        for video_detail in tqdm(video_details):
+        for video_detail in tqdm(video_details, desc='Processing videos'):
 
             video_name = os.path.basename(video_detail['path']).split('.')[0]
             chunks_path =  os.path.join(self.chunks_root_path, f"'{video_name}'")
