@@ -209,7 +209,7 @@ class QAGeneration():
 
         video_details = []
        
-        for video_url in tqdm(self.video_urls, desc='Preparing videos details'):
+        for video_url in tqdm(self.video_urls, ):
 
             video_id = self.extract_video_id(video_url)
             transcript = self.get_transcript(video_id)
@@ -239,10 +239,11 @@ class QAGeneration():
         
         video_details = self.get_video_details()
 
-        for video_detail in tqdm(video_details, desc='Processing videos'):
+        for video_detail in tqdm(video_details,):
 
             video_name = os.path.basename(video_detail['path']).split('.')[0]
-            chunks_path =  os.path.join(self.chunks_root_path, f"'{video_name}'")
+            chunks_path =  os.path.join(self.chunks_root_path, video_name)
+            chunks_path =  os.path.join(self.chunks_path, 'hybrid_clip_ssim_frame_dir')
 
             frames = self.get_chunk_frames(chunks_path)
             transcript = video_detail['transcript']
