@@ -32,7 +32,7 @@ class QAGeneration():
                                 'https://www.youtube.com/watch?v=vxrnCzjDJU4',
                                 'https://www.youtube.com/watch?v=Yo7WvXjFHSA',
                                 'https://www.youtube.com/watch?v=sJE5i-co2y0',
-                                'https://www.youtube.com/watch?v=-gz5zdjSGvs',
+                                'https://www.youtube.com/watch?v=C8w855EfKL4',
                                 'https://www.youtube.com/watch?v=NzwlDmMkEKs',
                                 'https://www.youtube.com/watch?v=ll27QTDv2GQ',
                                 'https://www.youtube.com/watch?v=MN3RJWcJKnk',]
@@ -237,6 +237,7 @@ class QAGeneration():
     
     def process_videos(self):
         
+        print('Downloading Videos...')
         video_details = self.get_video_details()
 
         for video_detail in tqdm(video_details):
