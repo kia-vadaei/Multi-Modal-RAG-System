@@ -17,7 +17,6 @@ from scipy.stats import entropy
 from google.colab.patches import cv2_imshow
 import pandas as pd
 import Entropy as E
-from tqdm import tqdm
 
 class Chunking():
     def get_avg_frame_per_time(self):
@@ -288,7 +287,6 @@ class HybridClipSSIMChunking(Chunking):
                 minutes = int(timestamp // 60)
                 seconds = int(timestamp % 60)
                 timestamps.append(timestamp)
-                print(f"Slide changed at {minutes:02}:{seconds:02} minutes")  # Print slide change time
 
                 hybrid_chunks.append(frame_lst)
                 frame_lst = []
