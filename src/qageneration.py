@@ -139,12 +139,17 @@ class QAGeneration():
 
       full_transcript = " ".join([entry['text'] for entry in transcript])
       return full_transcript
+    
     def extract_video_id(self, url):
       video_id = url.split('v=')[1]
       ampersand_position = video_id.find('&')
       if ampersand_position != -1:
           video_id = video_id[:ampersand_position]
       return video_id
+
+    def get_raw_transcripts(self, video_id):
+      
+      return YouTubeTranscriptApi.get_transcript(video_id)
     
     
     def analize_frames(self, frames):
@@ -259,3 +264,48 @@ class QAGeneration():
 
             QAs = self.generate_QAs(video_desc)
             self.save_as_json(i+1, video_details['id'],video_details['video_name'] , QAs, video_detail['url'])
+    
+    def prepare_concatenation_with_metadata(self, transcripts):
+        concatenated_text = ""
+        transcript_metadata = []  # To store positions and timestamps
+        current_pos = 0
+
+        for item in transcripts:
+            text = item["text"]
+            start_time = item["start_time"]
+            duration = item["duration"]
+            concatenated_text += text + " "  # Add text with a space separator
+            transcript_metadata.append({
+                "start_pos": current_pos,
+                "end_pos": current_pos + len(text),
+                "start_time": start_time,
+                "end_time": start_time + duration
+            })
+
+            current_pos += len(text) + 1  # Update for the space
+
+        return concatenated_text.strip(), transcript_metadata
+
+    def get_videos_transcript(self):
+
+        video_details = self.get_video_details()
+
+        for i, video_detail in enumerate(tqdm(video_details,)):
+
+            transcripts_dir = os.path.join("../transcripts", video_details['video_name'])
+            
+            os.makedirs(transcripts_dir, exist_ok=True)
+            
+            transcripts = self.get_raw_transcript(video_details['video_id'])
+
+            full_transcript, transcript_metadata = self.prepare_concatenation_with_metadata(transcripts)
+
+            transcript_txt_path = os.path.join(transcripts_dir, "transcript.txt")
+            metadata_json_path = os.path.join(transcripts_dir, "metadata.json")
+            
+                    # Save full transcript to a text file
+            with open(transcript_txt_path, "w", encoding="utf-8") as txt_file:
+                txt_file.write(full_transcript)
+            # Save metadata to a JSON file
+            with open(metadata_json_path, "w", encoding="utf-8") as json_file:
+                json.dump(transcript_metadata, json_file, indent=4, ensure_ascii=False)
