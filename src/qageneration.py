@@ -272,7 +272,7 @@ class QAGeneration():
 
         for item in transcripts:
             text = item["text"]
-            start_time = item["start_time"]
+            start_time = item["start"]
             duration = item["duration"]
             concatenated_text += text + " "  # Add text with a space separator
             transcript_metadata.append({
@@ -290,13 +290,13 @@ class QAGeneration():
 
         video_details = self.get_video_details()
 
-        for i, video_detail in enumerate(tqdm(video_details,)):
+        for video_detail in tqdm(video_details,):
 
-            transcripts_dir = os.path.join("../transcripts", video_details['video_name'])
+            transcripts_dir = os.path.join("./transcripts", video_details['video_name'])
             
             os.makedirs(transcripts_dir, exist_ok=True)
             
-            transcripts = self.get_raw_transcript(video_details['video_id'])
+            transcripts = self.get_raw_transcripts(video_details['id'])
 
             full_transcript, transcript_metadata = self.prepare_concatenation_with_metadata(transcripts)
 
