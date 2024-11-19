@@ -306,6 +306,8 @@ class VideoProcessing():
 
         for chunk in chunks:
 
+            chunk = chunk.page_content
+               
             start_idx = concatenated_text.find(chunk, current_pos)
             end_idx = start_idx + len(chunk)
 
