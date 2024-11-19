@@ -292,11 +292,11 @@ class QAGeneration():
 
         for video_detail in tqdm(video_details,):
 
-            transcripts_dir = os.path.join("./transcripts", video_details['video_name'])
+            transcripts_dir = os.path.join("./transcripts", video_detail['video_name'])
             
             os.makedirs(transcripts_dir, exist_ok=True)
             
-            transcripts = self.get_raw_transcripts(video_details['id'])
+            transcripts = self.get_raw_transcripts(video_detail['id'])
 
             full_transcript, transcript_metadata = self.prepare_concatenation_with_metadata(transcripts)
 
