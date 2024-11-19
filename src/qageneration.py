@@ -13,7 +13,11 @@ from langchain_openai import ChatOpenAI  # pip install -U langchain_openai
 import base64
 import requests
 from tqdm import tqdm
-class QAGeneration():
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.schema import Document
+import pickle
+
+class VideoProcessing():
     def __init__(self, video_urls = None , chunks_root_path = '../chunks/hybrid_clip_ssim_chunking'):
 
         base_url = "https://api.avalai.ir/v1"
@@ -286,7 +290,46 @@ class QAGeneration():
 
         return concatenated_text.strip(), transcript_metadata
 
-    def get_videos_transcript(self):
+
+    def chunk_transcript(self, transcript):  
+        text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=1000,
+        chunk_overlap=100)
+        documents = [Document(page_content=transcript)]
+
+        chunks = text_splitter.split_documents(documents)
+        return chunks
+    
+    def map_langchain_chunks_to_metadata(self, chunks, concatenated_text, metadata):
+        chunk_metadata = []
+        current_pos = 0 
+
+        for chunk in chunks:
+
+            start_idx = concatenated_text.find(chunk, current_pos)
+            end_idx = start_idx + len(chunk)
+
+
+            related_metadata = [
+                item for item in metadata
+                if not (item["end_pos"] < start_idx or item["start_pos"] > end_idx)
+            ]
+
+            if related_metadata:
+                chunk_start_time = related_metadata[0]["start_time"]
+                chunk_end_time = related_metadata[-1]["end_time"]
+
+                chunk_metadata.append({
+                    "chunk_text": chunk,
+                    "start_time": chunk_start_time,
+                    "end_time": chunk_end_time
+                })
+
+            current_pos = end_idx
+
+        return chunk_metadata
+
+    def chunk_videos_transcript(self):
 
         video_details = self.get_video_details()
 
@@ -299,9 +342,15 @@ class QAGeneration():
             transcripts = self.get_raw_transcripts(video_detail['id'])
 
             full_transcript, transcript_metadata = self.prepare_concatenation_with_metadata(transcripts)
+            
+            chunks = self.chunk_transcript(full_transcript)
 
+            meta_data_chunks = self.map_langchain_chunks_to_metadata(chunks, full_transcript, transcript_metadata)
+            
             transcript_txt_path = os.path.join(transcripts_dir, "transcript.txt")
             metadata_json_path = os.path.join(transcripts_dir, "metadata.json")
+            metadata_chunks_json_path = os.path.join(transcripts_dir, "metadata_chunks.json")
+            chunks_pickle_path = os.path.join(transcripts_dir, "chunks.pkl")
             
                     # Save full transcript to a text file
             with open(transcript_txt_path, "w", encoding="utf-8") as txt_file:
@@ -309,3 +358,9 @@ class QAGeneration():
             # Save metadata to a JSON file
             with open(metadata_json_path, "w", encoding="utf-8") as json_file:
                 json.dump(transcript_metadata, json_file, indent=4, ensure_ascii=False)
+
+            with open(metadata_chunks_json_path, "w", encoding="utf-8") as json_file:
+                json.dump(meta_data_chunks, json_file, indent=4, ensure_ascii=False)
+
+            with open(chunks_pickle_path, "wb") as pickle_file:
+                pickle.dump(chunks, pickle_file)
