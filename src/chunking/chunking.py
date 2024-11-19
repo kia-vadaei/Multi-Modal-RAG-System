@@ -287,6 +287,7 @@ class HybridClipSSIMChunking(Chunking):
                 minutes = int(timestamp // 60)
                 seconds = int(timestamp % 60)
                 timestamps.append(timestamp)
+                print(f"Slide changed at {minutes:02}:{seconds:02} minutes")  # Print slide change time
 
                 hybrid_chunks.append(frame_lst)
                 frame_lst = []
